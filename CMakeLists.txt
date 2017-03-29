@@ -21,7 +21,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/crt0.o PRE_LINK
   )
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/demo.s PRE_LINK
   COMMAND ${CC65} -I ${CMAKE_CURRENT_SOURCE_DIR}/include -Oi ${CMAKE_CURRENT_SOURCE_DIR}/src/demo.c --add-source -o ${CMAKE_CURRENT_BINARY_DIR}/demo.s
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/crt0.o
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/crt0.o ${CMAKE_CURRENT_SOURCE_DIR}/src/demo.c
   COMMENT "compile demo"
   )
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/demo.o PRE_LINK
