@@ -14,16 +14,26 @@ static unsigned char cat_x[2];
 static unsigned char cat_y[2];
 
 // first player metasprite, data structure explained in neslib.h
+// x offset, y offset, tile, attribute
+/*
+76543210
+||||||||
+||||||++- Palette (4 to 7) of sprite
+|||+++--- Unimplemented
+||+------ Priority (0: in front of background; 1: behind background)
+|+------- Flip sprite horizontally
++-------- Flip sprite vertically
+*/
 const unsigned char meta_cat1[]={
-  0,  0,  0x50,  0,
+  0,  0,  0x50,  0,  // upper left corner ear
   8,  0,  0x51,  0,
-  16,  0,  0x52,  0,
+  16,  0,  0x50,  1 << 6,
   0,  8,  0x60,  0,
   8,  8,  0x61,  0,
-  16,  8,  0x62,  0,
+  16,  8,  0x60,  0 | (1 << 6),
   0,  16,  0x70,  0,
   8,  16,  0x71,  0,
-  16,  16,  0x72,  0,
+  16,  16,  0x70,  1 << 6,
   128
 };
 
@@ -31,13 +41,13 @@ const unsigned char meta_cat1[]={
 const unsigned char meta_cat2[]={
   0,  0,  0x50,  1,
   8,  0,  0x51,  1,
-  16,  0,  0x52,  1,
+  16,  0,  0x50,  1 | (1 << 6),
   0,  8,  0x60,  1,
   8,  8,  0x61,  1,
-  16,  8,  0x62,  1,
+  16,  8,  0x60,  1 | (1 << 6),
   0,  16,  0x70,  1,
   8,  16,  0x71,  1,
-  16,  16,  0x72,  1,
+  16,  16,  0x70,  1 | (1 << 6),
   128
 };
 
@@ -66,10 +76,15 @@ void main(void)
     ppu_waitnmi();  // wait for next TV frame
 
     // flashing color for touch
-    i=frame & 1 ? 0x30 : 0x2a;
+    i = frame & 1 ? 0x30 : 0x2a;
 
-    pal_col(17, touch ? i : 0x21);  // set first sprite color
-    pal_col(21, touch ? i : 0x26);  // set second sprite color
+    pal_col(17, touch ? i : 0x21);  // set first sprite color 1
+    pal_col(18, touch ? i : 0x22);  // set first sprite color 2
+    pal_col(19, touch ? i : 0x39);  // set first sprite color 3
+
+    pal_col(21, touch ? i : 0x26);  // set second sprite color 1
+    pal_col(22, touch ? i : 0x2B);  // set second sprite color 2
+    pal_col(23, touch ? i : 0x39);  // set second sprite color 3
 
     // process players
     spr = 0;
@@ -77,7 +92,7 @@ void main(void)
     for (i = 0; i < 2; ++i)
     {
       // display metasprite
-      spr = oam_meta_spr(cat_x[i], cat_y[i], spr, !i ? meta_cat1 : meta_cat2);
+      spr = oam_meta_spr(cat_x[i], cat_y[i], spr, i ? meta_cat2 : meta_cat1);
 
       // poll pad and change coordinates
       pad = pad_poll(i);
