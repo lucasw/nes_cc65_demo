@@ -5,6 +5,7 @@
 
 // variables
 static unsigned char i;
+static unsigned char j;
 static unsigned char pad, spr;
 static unsigned char touch;
 static unsigned char frame;
@@ -13,10 +14,10 @@ static unsigned char frame;
 static unsigned char cat_x[2];
 static unsigned char cat_y[2];
 
-#define NUM_BULLETS 1
-static unsigned char b1x[NUM_BULLETS];
-static unsigned char b1y[NUM_BULLETS];
-static unsigned char b1_ind;
+#define NUM_BULLETS 4
+static unsigned char bx[2][NUM_BULLETS];
+static unsigned char by[2][NUM_BULLETS];
+static unsigned char b_ind[2];
 
 // first player metasprite, data structure explained in neslib.h
 // x offset, y offset, tile, attribute
@@ -68,11 +69,14 @@ void main(void)
   cat_y[1] = 100;
 
   // init other vars
-  b1_ind = 0;
-  for (i = 0; i < NUM_BULLETS; ++i)
+  for (i = 0; i < 2; ++i)
   {
-    b1x[i] = 128;
-    b1y[i] = 128;
+    b_ind[i] = 0;
+    for (j = 0; j < NUM_BULLETS; ++j)
+    {
+      bx[i][j] = 128;
+      by[i][j] = 128;
+    }
   }
 
   // collision flag
@@ -115,10 +119,13 @@ void main(void)
     // set sprite in OAM buffer, chrnum is tile, attr is attribute, sprid is offset in OAM in bytes
     // returns sprid+4, which is offset for a next sprite
     // oam_spr(x, y, chrnum, attr, sprid);
-    for (i = 0; i < NUM_BULLETS; ++i)
+    for (i = 0; i < 2; ++i)
     {
-      // spr = oam_spr(b1x[i], b1y[i], 0x40, 2 | ((frame % 4 > 2) ? (1 << 6) : 0), spr);
-      spr = oam_spr(b1x[i], b1y[i], 0x40, 2, spr);
+      for (j = 0; j < NUM_BULLETS; ++j)
+      {
+        // spr = oam_spr(b1x[i], b1y[i], 0x40, 2 | ((frame % 4 > 2) ? (1 << 6) : 0), spr);
+        spr = oam_spr(bx[i][j], by[i][j], 0x40, 2, spr);
+      }
     }
 
     // non graphics stuff
@@ -127,13 +134,13 @@ void main(void)
     {
       // fire cannon
       pad = pad_trigger(i);
-      if ((i == 0) && (pad & PAD_A))
+      if (pad & PAD_A)
       {
         cat_y[i] += 2;
-        b1x[b1_ind] = cat_x[i];
-        b1y[b1_ind] = cat_y[i];
-        // ++b1_ind;
-        // b1_ind %= NUM_BULLETS;
+        bx[i][b_ind[i]] = cat_x[i];
+        by[i][b_ind[i]] = cat_y[i];
+        ++b_ind[i];
+        b_ind[i] %= NUM_BULLETS;
       }
 
       // poll pad and change coordinates
@@ -160,12 +167,15 @@ void main(void)
     }
 
     // bullets
-    for (i = 0; i < NUM_BULLETS; ++i)
+    for (i = 0; i < 2; ++i)
     {
-      if ((b1y[i] >= 3) && (b1y[i] != 255))
-        b1y[i] -= 3;
-      else
-        b1y[i] = 255;
+      for (j = 0; j < NUM_BULLETS; ++j)
+      {
+        if ((by[i][j] >= 3) && (by[i][j] != 255))
+          by[i][j] -= 3;
+        else
+          by[i][j] = 255;
+      }
     }
 
     frame++;
