@@ -13,6 +13,11 @@ static unsigned char frame;
 static unsigned char cat_x[2];
 static unsigned char cat_y[2];
 
+#define NUM_BULLETS 1
+static unsigned char b1x[NUM_BULLETS];
+static unsigned char b1y[NUM_BULLETS];
+static unsigned char b1_ind;
+
 // first player metasprite, data structure explained in neslib.h
 // x offset, y offset, tile, attribute
 /*
@@ -63,6 +68,12 @@ void main(void)
   cat_y[1] = 100;
 
   // init other vars
+  b1_ind = 0;
+  for (i = 0; i < NUM_BULLETS; ++i)
+  {
+    b1x[i] = 128;
+    b1y[i] = 128;
+  }
 
   // collision flag
   touch = 0;
@@ -98,21 +109,40 @@ void main(void)
     {
       // display metasprite
       spr = oam_meta_spr(cat_x[i], cat_y[i], spr, i ? meta_cat2 : meta_cat1);
+    }
+
+    // cannon blasts
+    // set sprite in OAM buffer, chrnum is tile, attr is attribute, sprid is offset in OAM in bytes
+    // returns sprid+4, which is offset for a next sprite
+    // oam_spr(x, y, chrnum, attr, sprid);
+    for (i = 0; i < NUM_BULLETS; ++i)
+    {
+      // spr = oam_spr(b1x[i], b1y[i], 0x40, 2 | ((frame % 4 > 2) ? (1 << 6) : 0), spr);
+      spr = oam_spr(b1x[i], b1y[i], 0x40, 2, spr);
+    }
+
+    // non graphics stuff
+
+    for (i = 0; i < 2; ++i)
+    {
+      // fire cannon
+      pad = pad_trigger(i);
+      if ((i == 0) && (pad & PAD_A))
+      {
+        cat_y[i] += 2;
+        b1x[b1_ind] = cat_x[i];
+        b1y[b1_ind] = cat_y[i];
+        // ++b1_ind;
+        // b1_ind %= NUM_BULLETS;
+      }
 
       // poll pad and change coordinates
-      pad = pad_poll(i);
+      pad = pad_state(i);
       if (pad & PAD_LEFT && cat_x[i] > 0) cat_x[i] -= 2;
       if (pad & PAD_RIGHT && cat_x[i] < 232) cat_x[i] += 2;
       if (pad & PAD_UP && cat_y[i] > 0) cat_y[i] -= 2;
       if (pad & PAD_DOWN && cat_y[i] < 212) cat_y[i] += 2;
     }
-
-    // bullet
-    // set sprite in OAM buffer, chrnum is tile, attr is attribute, sprid is offset in OAM in bytes
-    // returns sprid+4, which is offset for a next sprite
-    // oam_spr(x, y, chrnum, attr, sprid);
-    spr = oam_spr(25, 70, 0x40, 2, spr);
-
 
     // check for collision for a smaller bounding box
     // metasprite is 24x24, collision box is 20x20
@@ -127,6 +157,15 @@ void main(void)
     else
     {
       touch = 0;
+    }
+
+    // bullets
+    for (i = 0; i < NUM_BULLETS; ++i)
+    {
+      if ((b1y[i] >= 3) && (b1y[i] != 255))
+        b1y[i] -= 3;
+      else
+        b1y[i] = 255;
     }
 
     frame++;
