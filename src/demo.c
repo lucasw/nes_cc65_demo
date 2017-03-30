@@ -78,13 +78,18 @@ void main(void)
     // flashing color for touch
     i = frame & 1 ? 0x30 : 0x2a;
 
-    pal_col(17, touch ? i : 0x21);  // set first sprite color 1
-    pal_col(18, touch ? i : 0x22);  // set first sprite color 2
-    pal_col(19, touch ? i : 0x39);  // set first sprite color 3
+    pal_col(16, 0x0f);  // set first sprite color 1
+    pal_col(17, touch ? i : 0x10);  // set first sprite color 1
+    pal_col(18, touch ? i : 0x2D);  // set first sprite color 2
+    pal_col(19, 0x15);  // set first sprite color 3
 
-    pal_col(21, touch ? i : 0x26);  // set second sprite color 1
-    pal_col(22, touch ? i : 0x2B);  // set second sprite color 2
-    pal_col(23, touch ? i : 0x39);  // set second sprite color 3
+    pal_col(21, touch ? i : 0x10);  // set second sprite color 1
+    pal_col(22, touch ? i : 0x0C);  // set second sprite color 2
+    pal_col(23, touch ? i : 0x17);  // set second sprite color 3
+
+    pal_col(25, 0x27);  // set second sprite color 1
+    pal_col(26, 0x3A);  // set second sprite color 2
+    pal_col(27, 0x30);  // set second sprite color 3
 
     // process players
     spr = 0;
@@ -101,6 +106,13 @@ void main(void)
       if (pad & PAD_UP && cat_y[i] > 0) cat_y[i] -= 2;
       if (pad & PAD_DOWN && cat_y[i] < 212) cat_y[i] += 2;
     }
+
+    // bullet
+    // set sprite in OAM buffer, chrnum is tile, attr is attribute, sprid is offset in OAM in bytes
+    // returns sprid+4, which is offset for a next sprite
+    // oam_spr(x, y, chrnum, attr, sprid);
+    spr = oam_spr(25, 70, 0x40, 2, spr);
+
 
     // check for collision for a smaller bounding box
     // metasprite is 24x24, collision box is 20x20
