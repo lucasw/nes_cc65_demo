@@ -6,6 +6,7 @@
 // variables
 static unsigned char i;
 static unsigned char j;
+static unsigned char k;
 static unsigned char pad, spr;
 static unsigned char touch;
 static unsigned char frame;
@@ -79,6 +80,9 @@ unsigned char __fastcall__ xorshift8(unsigned char y8)
   y8 ^= (y8 >> 5);
   return y8 ^= (y8 << 3);
 }
+
+// unsigned char __fastcall__ xorshift8(unsigned char x1, unsigned char y1,
+//     unsigned char x2, unsigned char y2, unsigned char margin)
 
 void main(void)
 {
@@ -215,6 +219,11 @@ void main(void)
           enemy_x[i] += enemy_r[i] >> 7;
         else
           enemy_x[i] -= enemy_r[i] >> 7;
+
+        if (enemy_x[i] > 250)
+          enemy_x[i] = 250;
+        else if (enemy_x[i] < 5)
+          enemy_x[i] = 5;
       }
     }
 
@@ -227,8 +236,20 @@ void main(void)
           by[i][j] -= 3;
         else
           by[i][j] = 255;
+
+        for (k = 0; k < NUM_ENEMIES; ++k)
+        {
+          if ((bx[i][j] > enemy_x[k] - 10) &&
+              (bx[i][j] < enemy_x[k] + 10) &&
+              (by[i][j] > enemy_y[k] - 10) &&
+              (by[i][j] < enemy_y[k] + 10))
+          {
+            by[i][j] = 255;
+            enemy_y[k] = 0;
+          }
+        }  // collision detection
       }
-    }
+    }  // bullet update
 
     frame++;
   }  // game loop
