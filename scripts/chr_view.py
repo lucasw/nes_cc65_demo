@@ -24,9 +24,13 @@ if __name__ == '__main__':
         # image[2::7, :, i] = colors[2][i]
         # image[3::11, :, i] = colors[3][i]
 
+    scale = 3
+    scaled_image = cv2.resize(image, (0, 0), fx = scale, fy = scale,
+                              interpolation = cv2.INTER_NEAREST)
+
     while True:
         key = cv2.waitKey(10)
         if key == ord('q'):
             print key, ord('q')
             break
-        cv2.imshow("image", image)
+        cv2.imshow("image", scaled_image)
