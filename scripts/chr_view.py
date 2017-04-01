@@ -10,7 +10,13 @@ import sys
 
 
 if __name__ == '__main__':
-    image = np.zeros((8 * 5, 8 * 8, 3), np.uint8)
+    scale = 9
+    sprite_width = 8
+    # yy-chr shows 16
+    sprites_per_row = 16
+    sprites_per_column = 8
+    image = np.zeros((sprite_width * sprites_per_column,
+                      sprite_width * sprites_per_row, 3), np.uint8)
 
     colors = []
     colors.append((0, 0, 0))
@@ -32,12 +38,15 @@ if __name__ == '__main__':
     # 8pixels x 2bpp = 16 bits = 2 bytes
     # with open(sys.argv[1], "rb") as fl:
     chr_name = sys.argv[1]
+    row_offset = 0
+    if (len(sys.argv) > 2):
+        row_offset = int(sys.argv[2])
     data = np.fromfile(chr_name, dtype=np.uint8)
     print len(data), (len(data) / 64), chr_name
     x = 0
     y = 0
     loop = True
-    for ind in range(0, len(data), 16):
+    for ind in range(row_offset * sprites_per_row * sprite_width, len(data), 16):
         if not loop:
             break
         # print 'ind', ind
@@ -75,7 +84,7 @@ if __name__ == '__main__':
                     image[y1, x1, k] = colors[pind[i]][k]
                     # print y, x1, pind[xo], image[y, x1, :]
         x += 8
-        if x >= 64:
+        if x >= sprites_per_row * sprite_width:
             x = 0
             y += 8
             # print x, y
@@ -91,7 +100,6 @@ if __name__ == '__main__':
                 x = 0
                 # print x, y
 
-    scale = 16
     scaled_image = cv2.resize(image, (0, 0), fx = scale, fy = scale,
                               interpolation = cv2.INTER_NEAREST)
     # pixel boundary grid
