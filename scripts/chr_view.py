@@ -40,9 +40,9 @@ if __name__ == '__main__':
     for ind in range(0, len(data), 16):
         if not loop:
             break
-        print 'ind', ind
-        if ind >= 32:
-            break
+        # print 'ind', ind
+        # if ind >= 32:
+        #     break
         if y >= image.shape[0]:
             print 'y ', y, image.shape[0]
             break
@@ -54,10 +54,12 @@ if __name__ == '__main__':
 
         # go through each row in current sprite
         for j in range(8):
-            for i in range(len(pind)):
+            # build each pixel in current row
+            for i in range(8):
                 # first plane, lower bit
-                plane0_bit = (plane0[j] & (0x8 >> i)) >> (7 - i)
-                plane1_bit = (plane1[j] & (0x8 >> i)) >> (7 - i)
+                ir = 7 - i
+                plane0_bit = (plane0[j] & (0x1 << ir)) >> ir
+                plane1_bit = (plane1[j] & (0x1 << ir)) >> ir
                 # second plane, higher bit
                 pind[i] = plane0_bit | (plane1_bit << 1)
 
@@ -73,10 +75,10 @@ if __name__ == '__main__':
                     image[y1, x1, k] = colors[pind[i]][k]
                     # print y, x1, pind[xo], image[y, x1, :]
         x += 8
-        if x > 8 * 8:
+        if x >= 64:
             x = 0
             y += 8
-            print x, y
+            # print x, y
         # go to next sprite
         # TODO store sprites as individual numpy images
         # then tile them in final image for visualization
