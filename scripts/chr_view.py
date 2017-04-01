@@ -10,7 +10,7 @@ import sys
 
 
 if __name__ == '__main__':
-    image = np.zeros((8 * 5, 8 * 10, 3), np.uint8)
+    image = np.zeros((8 * 5, 8 * 8, 3), np.uint8)
 
     colors = []
     colors.append((0, 0, 0))
@@ -36,9 +36,12 @@ if __name__ == '__main__':
     print len(data), (len(data) / 64), chr_name
     x = 0
     y = 0
+    loop = True
     for ind in range(0, len(data), 2):
-        if ind >= 8 * 2:
+        if not loop:
             break
+        # if ind >= 8 * 2 * 4:
+        #     break
         # tile_x = 0
 
         # get 8 pixels from 2 bytes
@@ -51,12 +54,14 @@ if __name__ == '__main__':
             pind[3] = (tile[i] & (0x3 << 6)) >> 6
             for xo in range(len(pind)):
                 x1 = x + xo + 4 * i
-                print 'x1', x1, ', x', x, 'xo', xo, 'i ', i
+                # print 'x1', x1, ', x', x, 'xo', xo, 'i ', i
                 if x1 >= image.shape[1]:
                     print 'x ', x1, image.shape[1]
+                    loop = False
                     break
                 if y >= image.shape[0]:
                     print 'y ', y, image.shape[0]
+                    loop = False
                     break
                 for j in range(3):
                     image[y, x1, j] = colors[pind[xo]][j]
@@ -71,24 +76,34 @@ if __name__ == '__main__':
             # TODO store sprites as individual numpy images
             # then tile them in final image for visualization
             if y % 8 == 0:
-                y -= 0
+                y -= 8
                 x += 8
                 # go to next row of tiles
-                if x >= image.shape[1] - 8:
+                if x >= image.shape[1]:
                     y += 8
                     x = 0
-                    print x, y
+                    # print x, y
 
     scale = 16
     scaled_image = cv2.resize(image, (0, 0), fx = scale, fy = scale,
                               interpolation = cv2.INTER_NEAREST)
-    # pixel boundaries
-    scaled_image[0::scale, :, 0] = 128
-    scaled_image[0::scale, :, 1] = 128
+    # pixel boundary grid
+    scaled_image[0::scale, :, 0] = 88
+    scaled_image[0::scale, :, 1] = 78
     scaled_image[0::scale, :, 2] = 0
-    scaled_image[:, 0::scale, 0] = 96
-    scaled_image[:, 0::scale, 1] = 96
+    scaled_image[:, 0::scale, 0] = 66
+    scaled_image[:, 0::scale, 1] = 56
     scaled_image[:, 0::scale, 2] = 0
+
+    # sprint boundary grid
+    scale *= 8
+    scaled_image[0::scale, :, 0] = 168
+    scaled_image[0::scale, :, 1] = 168
+    scaled_image[0::scale, :, 2] = 30
+    scaled_image[:, 0::scale, 0] = 106
+    scaled_image[:, 0::scale, 1] = 136
+    scaled_image[:, 0::scale, 2] = 30
+
 
     while True:
         key = cv2.waitKey(10)
