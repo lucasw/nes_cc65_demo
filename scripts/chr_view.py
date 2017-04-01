@@ -21,8 +21,8 @@ if __name__ == '__main__':
     colors = []
     colors.append((0, 0, 0))
     colors.append((60, 90, 180))
-    colors.append((100, 150, 120))
-    colors.append((250, 200, 250))
+    colors.append((252, 188, 176))
+    colors.append((200, 76, 12))
 
     image[:,:,0] = 228
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
                     break
                 # print 'pind', pind[i], i
                 for k in range(3):
-                    image[y1, x1, k] = colors[pind[i]][k]
+                    image[y1, x1, k] = colors[pind[i]][2 - k]
                     # print y, x1, pind[xo], image[y, x1, :]
         x += 8
         if x >= sprites_per_row * sprite_width:
