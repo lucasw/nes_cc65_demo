@@ -40,9 +40,10 @@ if __name__ == '__main__':
         if ind >= 8 * 2:
             break
         # tile_x = 0
+
+        # get 8 pixels from 2 bytes
         tile = data[ind:ind+2]
         pind = [0, 0, 0, 0]
-
         for i in range(2):
             pind[0] = (tile[i] & (0x3 << 0))
             pind[1] = (tile[i] & (0x3 << 2)) >> 2
@@ -50,6 +51,7 @@ if __name__ == '__main__':
             pind[3] = (tile[i] & (0x3 << 6)) >> 6
             for xo in range(len(pind)):
                 x1 = x + xo + 4 * i
+                print 'x1', x1, ', x', x, 'xo', xo, 'i ', i
                 if x1 >= image.shape[1]:
                     print 'x ', x1, image.shape[1]
                     break
@@ -59,10 +61,11 @@ if __name__ == '__main__':
                 for j in range(3):
                     image[y, x1, j] = colors[pind[xo]][j]
                 # print y, x1, pind[xo], image[y, x1, :]
-            x += 2
         # go to next row in current sprite
-        if x % 8 == 0:
-            x -= 8
+        # x += 8
+        # if x % 8 == 0:
+        if True:
+            # x -= 8
             y += 1
             # go to next sprite
             # TODO store sprites as individual numpy images
