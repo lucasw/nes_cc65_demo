@@ -17,12 +17,12 @@ if __name__ == '__main__':
     colors.append((120, 120, 120))
     colors.append((250, 250, 250))
 
-    image[:][:][0] = 128
+    image[:,:,0] = 128
 
-    if False:  # for i in range(3):
-        image[1::4][:][i] = colors[1][i]
-        image[2::7][:][i] = colors[2][i]
-        image[3::11][:][i] = colors[3][i]
+    for i in range(3):
+        image[1::4, 3::7, i] = colors[1][i]
+        # image[2::7, :, i] = colors[2][i]
+        # image[3::11, :, i] = colors[3][i]
 
     while True:
         key = cv2.waitKey(10)
