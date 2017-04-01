@@ -37,52 +37,57 @@ if __name__ == '__main__':
     x = 0
     y = 0
     loop = True
-    for ind in range(0, len(data), 2):
+    for ind in range(0, len(data), 16):
         if not loop:
             break
-        # if ind >= 8 * 2 * 4:
-        #     break
-        # tile_x = 0
+        print 'ind', ind
+        if ind >= 32:
+            break
+        if y >= image.shape[0]:
+            print 'y ', y, image.shape[0]
+            break
 
-        # get 8 pixels from 2 bytes
-        tile = data[ind:ind+2]
-        pind = [0, 0, 0, 0]
-        for i in range(2):
-            pind[0] = (tile[i] & (0x3 << 0))
-            pind[1] = (tile[i] & (0x3 << 2)) >> 2
-            pind[2] = (tile[i] & (0x3 << 4)) >> 4
-            pind[3] = (tile[i] & (0x3 << 6)) >> 6
-            for xo in range(len(pind)):
-                x1 = x + xo + 4 * i
-                # print 'x1', x1, ', x', x, 'xo', xo, 'i ', i
+        # get 8 pixels from 16 bytes
+        plane0 = data[ind:ind + 8]
+        plane1 = data[ind + 8:ind + 16]
+        pind = [0, 0, 0, 0, 0, 0, 0, 0]
+
+        # go through each row in current sprite
+        for j in range(8):
+            for i in range(len(pind)):
+                # first plane, lower bit
+                plane0_bit = (plane0[j] & (0x8 >> i)) >> (7 - i)
+                plane1_bit = (plane1[j] & (0x8 >> i)) >> (7 - i)
+                # second plane, higher bit
+                pind[i] = plane0_bit | (plane1_bit << 1)
+
+                x1 = x + i
+                y1 = y + j
+                # print 'x1', x1, ', x', x, 'i', i, ', y', y
                 if x1 >= image.shape[1]:
                     print 'x ', x1, image.shape[1]
                     loop = False
                     break
-                if y >= image.shape[0]:
-                    print 'y ', y, image.shape[0]
-                    loop = False
-                    break
-                for j in range(3):
-                    image[y, x1, j] = colors[pind[xo]][j]
-                # print y, x1, pind[xo], image[y, x1, :]
-        # go to next row in current sprite
-        # x += 8
-        # if x % 8 == 0:
-        if True:
-            # x -= 8
-            y += 1
-            # go to next sprite
-            # TODO store sprites as individual numpy images
-            # then tile them in final image for visualization
-            if y % 8 == 0:
-                y -= 8
-                x += 8
-                # go to next row of tiles
-                if x >= image.shape[1]:
-                    y += 8
-                    x = 0
-                    # print x, y
+                # print 'pind', pind[i], i
+                for k in range(3):
+                    image[y1, x1, k] = colors[pind[i]][k]
+                    # print y, x1, pind[xo], image[y, x1, :]
+        x += 8
+        if x > 8 * 8:
+            x = 0
+            y += 8
+            print x, y
+        # go to next sprite
+        # TODO store sprites as individual numpy images
+        # then tile them in final image for visualization
+        if False:  # if y % 8 == 0:
+            y -= 8
+            x += 8
+            # go to next row of tiles
+            if x >= image.shape[1]:
+                y += 8
+                x = 0
+                # print x, y
 
     scale = 16
     scaled_image = cv2.resize(image, (0, 0), fx = scale, fy = scale,
