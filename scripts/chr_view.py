@@ -3,6 +3,9 @@
 # March 2017
 
 # load a nes .chr or .nes and view the graphics
+# Probably should look at other linux/python chr viewers and editors,
+# e.g. https://github.com/jmcmahan/nestile
+# and not spend much more time on this.
 
 import cv2
 import numpy as np
