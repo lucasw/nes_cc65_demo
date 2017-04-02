@@ -27,9 +27,11 @@ static unsigned char enemy_y[NUM_ENEMIES];
 // random number for this enemy
 static unsigned char enemy_r[NUM_ENEMIES];
 
-#define IN_BOUNDS(x1, x2, margin) (((x1) < (margin) && ((x2) < (margin))) || \
-    ((x1) > (255 - (margin)) && ((x2) > (255 - (margin)))) || \
-    ((x1) < ((x2) + (margin)) && ((x1) > ((x2) - (margin)))))
+#define IN_BOUNDS(x1, x2, margin) ( \
+    (((x1) < (margin)) && ((x2) < (margin))) || \
+    (((x1) > (255 - (margin))) && ((x2) > (255 - (margin)))) || \
+    (((x1) < ((x2) + (margin))) && ((x1) > ((x2) - (margin)))) \
+    )
 
 // x offset, y offset, tile, attribute
 /*
