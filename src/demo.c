@@ -27,6 +27,10 @@ static unsigned char enemy_y[NUM_ENEMIES];
 // random number for this enemy
 static unsigned char enemy_r[NUM_ENEMIES];
 
+#define IN_BOUNDS(x1, x2, margin) (((x1) < (margin) && ((x2) < (margin))) || \
+    ((x1) > (255 - (margin)) && ((x2) > (255 - (margin)))) || \
+    ((x1) < ((x2) + (margin)) && ((x1) > ((x2) - (margin)))))
+
 // x offset, y offset, tile, attribute
 /*
 76543210
@@ -239,10 +243,9 @@ void main(void)
 
         for (k = 0; k < NUM_ENEMIES; ++k)
         {
-          if ((bx[i][j] > enemy_x[k] - 10) &&
-              (bx[i][j] < enemy_x[k] + 10) &&
-              (by[i][j] > enemy_y[k] - 10) &&
-              (by[i][j] < enemy_y[k] + 10))
+          // TODO(lucasw) handle overflow when +4, or +8 > 255
+          if (IN_BOUNDS(bx[i][j] + 4, enemy_x[k] + 16, 8) &&
+              IN_BOUNDS(by[i][j] + 4, enemy_y[k] + 4, 4))
           {
             by[i][j] = 255;
             enemy_y[k] = 0;
