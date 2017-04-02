@@ -230,6 +230,9 @@ void main(void)
           enemy_x[i] = 250;
         else if (enemy_x[i] < 5)
           enemy_x[i] = 5;
+
+        // if (enemy_y[i] == 255)
+        //    enemy_x[i] = enemy_r[i];
       }
     }
 
@@ -251,6 +254,7 @@ void main(void)
           {
             by[i][j] = 255;
             enemy_y[k] = 0;
+            enemy_x[k] = enemy_r[k];
           }
         }  // collision detection
       }
