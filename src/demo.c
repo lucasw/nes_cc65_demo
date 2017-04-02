@@ -17,6 +17,8 @@ static unsigned char frame;
 static unsigned char player_x[2];
 static unsigned char player_y[2];
 
+static unsigned int scroll_y = 0;
+
 #define NUM_BULLETS 4
 static unsigned char bx[2][NUM_BULLETS];
 static unsigned char by[2][NUM_BULLETS];
@@ -155,8 +157,7 @@ void main(void)
   {
     ppu_waitnmi();  // wait for next TV frame
 
-    // flashing color for touch
-    i = frame & 1 ? 0x30 : 0x2a;
+    scroll(0, scroll_y);
 
     // the first 16 indices are for the background tiles?
     pal_col(16, 0x0f);  // set first sprite color 1
@@ -286,6 +287,13 @@ void main(void)
         }  // collision detection
       }
     }  // bullet update
+
+    // flashing color for touch
+    i = frame & 1 ? 0x30 : 0x2a;
+
+    scroll_y -= 1;
+    if (scroll_y >= 240 * 2)
+      scroll_y = 240 * 2 - 1;  // needs to be within height of 2 nametables
 
     frame++;
   }  // game loop
