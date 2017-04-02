@@ -219,3 +219,22 @@ void __fastcall__ delay(unsigned char frames);
 #define NULL			0
 #define TRUE			1
 #define FALSE			0
+
+#define NT_UPD_HORZ   0x40
+#define NT_UPD_VERT   0x80
+#define NT_UPD_EOF    0xff
+
+#define NAMETABLE_A   0x2000
+#define NAMETABLE_B   0x2400
+#define NAMETABLE_C   0x2800
+#define NAMETABLE_D   0x2c00
+
+// macro to calculate nametable address from X,Y in compile time
+#define NTADR_A(x,y)  (NAMETABLE_A|(((y)<<5)|(x)))
+#define NTADR_B(x,y)  (NAMETABLE_B|(((y)<<5)|(x)))
+#define NTADR_C(x,y)  (NAMETABLE_C|(((y)<<5)|(x)))
+#define NTADR_D(x,y)  (NAMETABLE_D|(((y)<<5)|(x)))
+
+// macro to get MSB and LSB
+#define MSB(x)      (((x)>>8))
+#define LSB(x)      (((x)&0xff))

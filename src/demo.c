@@ -1,6 +1,8 @@
 // this example shows metasprite use, two pads polling,
 // and simple collision detection that changes palette
 
+// screen resolution is 256 x 240, or 32 x 30 tiles 8 pixels size
+
 #include "cc65_nes/neslib.h"
 
 // variables
@@ -79,6 +81,22 @@ const unsigned char player_meta2[] = {
   128
 };
 
+
+static unsigned char list[6 * 3];
+
+// init data for the update list, it contains MSB and LSB of a tile address
+// in the nametable, then the tile number
+
+const unsigned char list_init[6 * 3]={
+  MSB(NTADR_A(2, 2)), LSB(NTADR_A(2, 2)), 0x42,
+  MSB(NTADR_A(4, 2)), LSB(NTADR_A(4, 2)), 0x44,
+  MSB(NTADR_A(6, 2)), LSB(NTADR_A(6, 2)), 0x42,
+  MSB(NTADR_A(8, 2)), LSB(NTADR_A(8, 2)), 0x42,
+  MSB(NTADR_A(10, 2)), LSB(NTADR_A(10, 2)), 0x43,
+  MSB(NTADR_A(12, 2)), LSB(NTADR_A(12, 2)), 0x44
+};
+
+// TODO(lucasw) neslib has rand8
 // http://www.arklyffe.com/main/2010/08/29/xorshift-pseudorandom-number-generator/
 unsigned char __fastcall__ xorshift8(unsigned char y8)
 {
@@ -92,6 +110,14 @@ unsigned char __fastcall__ xorshift8(unsigned char y8)
 
 void main(void)
 {
+  pal_col(0, 0x0f);//blue color for text
+  pal_col(1, 0x12);//blue color for text
+  pal_col(2, 0x3D);//blue color for text
+  pal_col(3, 0x30);//blue color for text
+
+  memcpy(list, list_init, sizeof(list_init));
+  set_vram_update(6, list);
+
   // enable rendering
   ppu_on_all();
 
@@ -132,6 +158,7 @@ void main(void)
     // flashing color for touch
     i = frame & 1 ? 0x30 : 0x2a;
 
+    // the first 16 indices are for the background tiles?
     pal_col(16, 0x0f);  // set first sprite color 1
     pal_col(17, touch ? i : 0x10);  // set first sprite color 1
     pal_col(18, touch ? i : 0x2D);  // set first sprite color 2
