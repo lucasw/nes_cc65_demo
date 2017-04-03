@@ -122,6 +122,11 @@ void main(void)
   pal_col(2, 0x3D);
   pal_col(3, 0x30);
 
+  pal_col(4, 0x0f);
+  pal_col(5, 0x15);
+  pal_col(6, 0x17);
+  pal_col(7, 0x39);
+
   // sprite palette 0
   // 16-31 are for the sprites (?)
   pal_col(16, 0x0f);  // sprite color 0
@@ -155,9 +160,21 @@ void main(void)
       vram_adr(NTADR_A(x, y));
       i = rand8();
       vram_put((i > 180) ? (0x42 + rand8() % 3) : 0);
+      // vram_put(0x42);
 
-      // TODO(lucasw) need to change the attributes randomly
-      // to flip in x or y and have a slightly different palette
+      if ((x % 4 == 0) && (y % 4 == 0))
+      {
+        // can only change background tile palette,
+        // but can't rotate/flip like sprites.
+        vram_adr(0x23C0 + (y >> 2) * 8 + (x >> 2));
+        i = rand8();
+        vram_put(i);
+        /*
+        for (j = 0; j < 8; j += 2)
+        {
+          k |= (1 << j);
+        }*/
+      }
 
       vram_adr(NTADR_C(x, y));
       i = rand8();
