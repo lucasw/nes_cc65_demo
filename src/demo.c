@@ -9,6 +9,8 @@
 static unsigned char i;
 static unsigned char j;
 static unsigned char k;
+static unsigned char x;
+static unsigned char y;
 static unsigned char pad, spr;
 static unsigned char touch;
 static unsigned char frame;
@@ -70,6 +72,8 @@ const unsigned char player_meta1[] = {
 };
 
 // second player metasprite, the only difference is palette number
+// TODO(lucasw) instead just allocate the memory and memcpy player_meta1
+// into it and change the palette number
 const unsigned char player_meta2[] = {
   0,  0,  0x50,  1,
   8,  0,  0x51,  1,
@@ -112,13 +116,56 @@ unsigned char __fastcall__ xorshift8(unsigned char y8)
 
 void main(void)
 {
-  pal_col(0, 0x0f);//blue color for text
-  pal_col(1, 0x12);//blue color for text
-  pal_col(2, 0x3D);//blue color for text
-  pal_col(3, 0x30);//blue color for text
+  // the first 16 colors are for the background (?)
+  pal_col(0, 0x0f);
+  pal_col(1, 0x12);
+  pal_col(2, 0x3D);
+  pal_col(3, 0x30);
+
+  // sprite palette 0
+  // 16-31 are for the sprites (?)
+  pal_col(16, 0x0f);  // sprite color 0
+  // 17 - 18 are changed in the game loop
+  pal_col(19, 0x15);  // sprite color 3
+
+  // sprite palette 1
+  pal_col(20, 0x0f);  // sprite color 0
+  // 21 - 23 are changed in the game loop
+
+  // sprite palette 2
+  pal_col(24, 0x0f);  // set third sprite color 0
+  pal_col(25, 0x27);  // set third sprite color 1
+  pal_col(26, 0x3A);  // set third sprite color 2
+  pal_col(27, 0x30);  // set third sprite color 3
+
+  // sprite palette 3
+  pal_col(28, 0x0f);  // set fourth sprite color 1
+  pal_col(29, 0x13);  // set fourth sprite color 1
+  pal_col(30, 0x23);  // set fourth sprite color 2
+  pal_col(31, 0x33);  // set fourth sprite color 3
 
   memcpy(list, list_init, sizeof(list_init));
   set_vram_update(6, list);
+
+  set_rand(0x3412);
+  for (y = 0; y < 30; ++y)
+  {
+    for (x = 0; x < 32; ++x)
+    {
+      vram_adr(NTADR_A(x, y));
+      i = rand8();
+      vram_put((i > 180) ? (0x42 + rand8() % 3) : 0);
+
+      // TODO(lucasw) need to change the attributes randomly
+      // to flip in x or y and have a slightly different palette
+
+      vram_adr(NTADR_C(x, y));
+      i = rand8();
+      vram_put((i > 230) ? (0x42 + rand8() % 3) : 0);
+    }
+  }
+
+  // populate the first two screens
 
   // enable rendering
   ppu_on_all();
@@ -160,24 +207,14 @@ void main(void)
     scroll(0, scroll_y);
 
     // the first 16 indices are for the background tiles?
-    pal_col(16, 0x0f);  // set first sprite color 1
     pal_col(17, touch ? i : 0x10);  // set first sprite color 1
     pal_col(18, touch ? i : 0x2D);  // set first sprite color 2
-    pal_col(19, 0x15);  // set first sprite color 3
 
     pal_col(21, touch ? i : 0x10);  // set second sprite color 1
     pal_col(22, touch ? i : 0x0C);  // set second sprite color 2
     pal_col(23, touch ? i : 0x17);  // set second sprite color 3
 
-    pal_col(25, 0x27);  // set second sprite color 1
-    pal_col(26, 0x3A);  // set second sprite color 2
-    pal_col(27, 0x30);  // set second sprite color 3
-
-    pal_col(28, 0x13);  // set second sprite color 1
-    pal_col(29, 0x23);  // set second sprite color 2
-    pal_col(30, 0x33);  // set second sprite color 3
-
-    // process players
+        // process players
     spr = 0;
 
     for (i = 0; i < 2; ++i)
