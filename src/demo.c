@@ -356,9 +356,14 @@ void main(void)
     for (i = 0; i < NUM_ENEMIES; ++i)
     {
       enemy_r[i] = xorshift8(enemy_r[i]);
-      if (frame % 4 == 0)
+
+      if (enemy_y[i] == 255)
       {
-        enemy_y[i] += 2;
+
+      }
+      else if (frame % 2 == 0)
+      {
+        enemy_y[i] += 1;
         vel = enemy_r[i] >> 7;
         if (enemy_r[i] > 150)
           enemy_x[i] += vel;
@@ -366,9 +371,6 @@ void main(void)
           enemy_x[i] -= vel;
 
         LIMIT(enemy_x[i], 8, 240);
-
-        // if (enemy_y[i] == 255)
-        //    enemy_x[i] = enemy_r[i];
       }
 
       for (j = 0; j < 2; ++j)
@@ -396,6 +398,9 @@ void main(void)
 
         for (k = 0; k < NUM_ENEMIES; ++k)
         {
+          if (enemy_y[k] > 250)
+            continue;
+
           // TODO(lucasw) handle overflow when +4, or +8 > 255
           if (IN_BOUNDS(bx[i][j] + 4, enemy_x[k] + 8, 8) &&
               IN_BOUNDS(by[i][j] + 4, enemy_y[k] + 4, 4))
@@ -403,17 +408,21 @@ void main(void)
             by[i][j] = 255;
             explosion_x[0] = enemy_x[k];
             explosion_y[0] = enemy_y[k] - 4;
-            enemy_y[k] = 0;
-            enemy_x[k] = enemy_r[k];
-            // TODO(lucasw) replace with macro
-            if (enemy_x[k] < 8)
-              enemy_x[k] = 8;
-            else if (enemy_x[k] > 240)
-              enemy_x[k] = 240;
+            enemy_y[k] = 255;
           }
         }  // collision detection
       }
     }  // bullet update
+
+    // reset enemies
+    for (i = 0; i < NUM_ENEMIES; ++i)
+    {
+      if (enemy_y[i] < 250)
+        continue;
+
+      enemy_x[i] = rand8();
+      enemy_y[i] = 0;
+    }
 
     // flashing color for touch
     i = frame & 1 ? 0x30 : 0x2a;
