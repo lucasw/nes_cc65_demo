@@ -10,7 +10,7 @@ static unsigned char i, j, k;
 static unsigned char x, y;
 static unsigned char pad;
 static unsigned char spr, old_spr;
-static unsigned char touch;
+static unsigned char touch, vel;
 static unsigned char frame;
 
 // two players coords
@@ -41,6 +41,16 @@ static unsigned char explosion_y[NUM_EXPLOSIONS];
     (((x1) > (255 - (margin))) && ((x2) > (255 - (margin)))) || \
     (((x1) < ((x2) + (margin))) && ((x1) > ((x2) - (margin)))) \
     )
+
+#define LIMIT(lvalue, min, max) \
+  if (lvalue < (min)) \
+  { \
+    lvalue = (min); \
+  } \
+  else if (lvalue > (max)) \
+  { \
+    lvalue = (max); \
+  }
 
 // x offset, y offset, tile, attribute
 /*
@@ -320,10 +330,14 @@ void main(void)
 
       // poll pad and change coordinates
       pad = pad_state(i);
-      if (pad & PAD_LEFT && player_x[i] > 0) player_x[i] -= 2;
-      if (pad & PAD_RIGHT && player_x[i] < 232) player_x[i] += 2;
-      if (pad & PAD_UP && player_y[i] > 0) player_y[i] -= 2;
-      if (pad & PAD_DOWN && player_y[i] < 212) player_y[i] += 2;
+      vel = 2;
+      if (pad & PAD_LEFT && player_x[i] > vel) player_x[i] -= vel;
+      if (pad & PAD_RIGHT && player_x[i] < 255 - vel) player_x[i] += vel;
+      if (pad & PAD_UP && player_y[i] > vel) player_y[i] -= vel;
+      if (pad & PAD_DOWN && player_y[i] < 255 - vel) player_y[i] += vel;
+
+      LIMIT(player_x[i], 0, 255 - 24);
+      LIMIT(player_y[i], 6, 240 - 32);
     }
 
     // check for collision for a smaller bounding box
