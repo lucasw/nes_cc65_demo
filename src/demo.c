@@ -358,16 +358,14 @@ void main(void)
       enemy_r[i] = xorshift8(enemy_r[i]);
       if (frame % 4 == 0)
       {
-        enemy_y[i] += 1;
-        if (enemy_r[i] > 128)
-          enemy_x[i] += enemy_r[i] >> 7;
+        enemy_y[i] += 2;
+        vel = enemy_r[i] >> 7;
+        if (enemy_r[i] > 150)
+          enemy_x[i] += vel;
         else
-          enemy_x[i] -= enemy_r[i] >> 7;
+          enemy_x[i] -= vel;
 
-        if (enemy_x[i] > 240)
-          enemy_x[i] = 240;
-        else if (enemy_x[i] < 8)
-          enemy_x[i] = 8;
+        LIMIT(enemy_x[i], 8, 240);
 
         // if (enemy_y[i] == 255)
         //    enemy_x[i] = enemy_r[i];
