@@ -6,12 +6,10 @@
 #include "cc65_nes/neslib.h"
 
 // variables
-static unsigned char i;
-static unsigned char j;
-static unsigned char k;
-static unsigned char x;
-static unsigned char y;
-static unsigned char pad, spr;
+static unsigned char i, j, k;
+static unsigned char x, y;
+static unsigned char pad;
+static unsigned char spr, old_spr;
 static unsigned char touch;
 static unsigned char frame;
 
@@ -228,6 +226,9 @@ void main(void)
     }
   }
 
+  // spr from last cycle
+  old_spr = 0;
+
   // collision flag
   touch = 0;
   // frame counter
@@ -287,8 +288,15 @@ void main(void)
       }
     }
 
+    // clear all the old sprites
+    for (i = spr; i < old_spr; i += 4)
+    {
+        oam_spr(0, 255, 0x0, 0, i);
+    }
+    old_spr = spr;
+
     ///////////////////////////////////////////////////////////////////////////
-    // non graphics stuff
+    // non graphics stuff - can happen after blank period
 
     for (i = 0; i < 2; ++i)
     {
