@@ -358,7 +358,19 @@ void main(void)
         // if (enemy_y[i] == 255)
         //    enemy_x[i] = enemy_r[i];
       }
-    }
+
+      for (j = 0; j < 2; ++j)
+      {
+        if (IN_BOUNDS(enemy_x[i] + 8, player_x[j] + 12, 16) &&
+            IN_BOUNDS(enemy_y[i] + 4, player_y[j] + 8, 10))
+        {
+          explosion_x[0] = player_x[j] + 4;
+          explosion_y[0] = player_y[j];
+          enemy_y[i] = 255;
+          player_y[j] = 255;
+        }
+      }
+    }  // loop through enemies
 
     // bullets
     for (i = 0; i < 2; ++i)
