@@ -30,6 +30,7 @@ static unsigned char enemy_x[NUM_ENEMIES];
 static unsigned char enemy_y[NUM_ENEMIES];
 // random number for this enemy
 static unsigned char enemy_r[NUM_ENEMIES];
+static unsigned char enemy_c[NUM_ENEMIES];
 
 // explosions
 #define NUM_EXPLOSIONS 2
@@ -62,6 +63,10 @@ static unsigned char explosion_y[NUM_EXPLOSIONS];
 |+------- Flip sprite horizontally
 +-------- Flip sprite vertically
 */
+
+const unsigned char pattern[] = {
+  128, 127, 126, 126, 127, 127, 128, 128, 129, 129, 130, 130, 129, 128
+};
 
 const unsigned char enemy_meta[] = {
   0,  0,  0x52,  3,
@@ -216,7 +221,8 @@ void main(void)
   for (i = 0; i < NUM_ENEMIES; ++i)
   {
     enemy_x[i] = 16 + i << 5;
-    enemy_y[i] = 32;
+    enemy_y[i] = 255;
+    enemy_c[i] = 0;
     enemy_r[i] = 30 + i;
   }
 
@@ -361,14 +367,18 @@ void main(void)
       {
 
       }
-      else if (frame % 2 == 0)
+      else
       {
-        enemy_y[i] += 1;
-        vel = enemy_r[i] >> 7;
-        if (enemy_r[i] > 150)
-          enemy_x[i] += vel;
+        vel = pattern[enemy_c[i] % sizeof(pattern)];  // enemy_r[i] >> 7;
+        if (vel > 128)
+          enemy_x[i] += vel - 128;
         else
-          enemy_x[i] -= vel;
+          enemy_x[i] -= (128 - vel);
+
+        if (frame % 2 == 0)
+          enemy_y[i] += 1;
+        if (frame % 24 == 0)
+          ++enemy_c[i];
 
         LIMIT(enemy_x[i], 8, 240);
       }
@@ -422,6 +432,7 @@ void main(void)
 
       enemy_x[i] = rand8();
       enemy_y[i] = 0;
+      enemy_c[i] = 0;
     }
 
     // flashing color for touch
