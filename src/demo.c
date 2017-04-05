@@ -33,6 +33,11 @@ static unsigned char enemy_y[NUM_ENEMIES];
 // random number for this enemy
 static unsigned char enemy_r[NUM_ENEMIES];
 
+// explosions
+#define NUM_EXPLOSIONS 2
+static unsigned char explosion_x[NUM_EXPLOSIONS];
+static unsigned char explosion_y[NUM_EXPLOSIONS];
+
 #define IN_BOUNDS(x1, x2, margin) ( \
     (((x1) < (margin)) && ((x2) < (margin))) || \
     (((x1) > (255 - (margin))) && ((x2) > (255 - (margin)))) || \
@@ -51,11 +56,18 @@ static unsigned char enemy_r[NUM_ENEMIES];
 */
 
 const unsigned char enemy_meta[] = {
-  8,  0,  0x52,  3,
-  16,  0,  0x52,  3 | (1 << 6),
+  0,  0,  0x52,  3,
+  8,  0,  0x52,  3 | (1 << 6),
   128   // TODO(lucasw) what is this?
 };
 
+const unsigned char explosion_meta[] = {
+  0,  0,  0x45,  2,
+  8,  0,  0x45,  2 | (1 << 6),
+  0,  8,  0x45,  2 | (1 << 7),
+  8,  8,  0x45,  2 | (3 << 6),
+  128
+};
 
 // first player metasprite
 const unsigned char player_meta1[] = {
@@ -200,6 +212,12 @@ void main(void)
     enemy_r[i] = 30 + i;
   }
 
+  for (i = 0; i < NUM_EXPLOSIONS; ++i)
+  {
+    explosion_x[i] = 0;
+    explosion_y[i] = 255;
+  }
+
   for (i = 0; i < 2; ++i)
   {
     b_ind[i] = 0;
@@ -231,7 +249,6 @@ void main(void)
     pal_col(22, touch ? i : 0x0C);  // set second sprite color 2
     pal_col(23, touch ? i : 0x17);  // set second sprite color 3
 
-        // process players
     spr = 0;
 
     for (i = 0; i < 2; ++i)
@@ -242,7 +259,19 @@ void main(void)
 
     for (i = 0; i < NUM_ENEMIES; ++i)
     {
-      spr = oam_meta_spr(enemy_x[i], enemy_y[i], spr, enemy_meta);
+      if (enemy_y[i] < 255)
+      {
+        spr = oam_meta_spr(enemy_x[i], enemy_y[i], spr, enemy_meta);
+      }
+    }
+
+    for (i = 0; i < NUM_EXPLOSIONS; ++i)
+    {
+      if (explosion_y[i] < 255)
+      {
+        spr = oam_meta_spr(explosion_x[i], explosion_y[i], spr, explosion_meta);
+        explosion_y[i] = 255;
+      }
     }
 
     // player cannon blasts
@@ -308,10 +337,10 @@ void main(void)
         else
           enemy_x[i] -= enemy_r[i] >> 7;
 
-        if (enemy_x[i] > 250)
-          enemy_x[i] = 250;
-        else if (enemy_x[i] < 5)
-          enemy_x[i] = 5;
+        if (enemy_x[i] > 240)
+          enemy_x[i] = 240;
+        else if (enemy_x[i] < 8)
+          enemy_x[i] = 8;
 
         // if (enemy_y[i] == 255)
         //    enemy_x[i] = enemy_r[i];
@@ -331,12 +360,19 @@ void main(void)
         for (k = 0; k < NUM_ENEMIES; ++k)
         {
           // TODO(lucasw) handle overflow when +4, or +8 > 255
-          if (IN_BOUNDS(bx[i][j] + 4, enemy_x[k] + 16, 8) &&
+          if (IN_BOUNDS(bx[i][j] + 4, enemy_x[k] + 8, 8) &&
               IN_BOUNDS(by[i][j] + 4, enemy_y[k] + 4, 4))
           {
             by[i][j] = 255;
+            explosion_x[0] = enemy_x[k];
+            explosion_y[0] = enemy_y[k] - 4;
             enemy_y[k] = 0;
             enemy_x[k] = enemy_r[k];
+            // TODO(lucasw) replace with macro
+            if (enemy_x[k] < 8)
+              enemy_x[k] = 8;
+            else if (enemy_x[k] > 240)
+              enemy_x[k] = 240;
           }
         }  // collision detection
       }
