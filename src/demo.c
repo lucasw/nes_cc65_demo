@@ -289,9 +289,10 @@ void main(void)
     }
 
     // clear all the old sprites
+    // for (i = spr; i < old_spr; i += 4)
     for (i = spr; i < old_spr; i += 4)
     {
-        oam_spr(0, 255, 0x0, 0, i);
+      oam_spr(0, 255, 0x0, 0, i);
     }
     old_spr = spr;
 
@@ -322,10 +323,8 @@ void main(void)
     // check for collision for a smaller bounding box
     // metasprite is 24x24, collision box is 20x20
 
-    if (!(player_x[0] + 22 < player_x[1] + 2 ||
-        player_x[0] + 2 >= player_x[1] + 22 ||
-        player_y[0] + 22 < player_y[1] + 2 ||
-        player_y[0] + 2 >= player_y[1] + 22))
+    if (IN_BOUNDS(player_x[0] + 12, player_x[1] + 12, 22) &&
+        IN_BOUNDS(player_y[0] + 8, player_y[1] + 8, 18))
     {
       touch = 1;
     }
