@@ -254,24 +254,20 @@ void main(void)
 
     for (i = 0; i < 2; ++i)
     {
-      // display metasprite
       spr = oam_meta_spr(player_x[i], player_y[i], spr, i ? player_meta2 : player_meta1);
     }
 
     for (i = 0; i < NUM_ENEMIES; ++i)
     {
-      if (enemy_y[i] < 255)
-      {
-        spr = oam_meta_spr(enemy_x[i], enemy_y[i], spr, enemy_meta);
-      }
-    }
+      // flicker
+      if (frame % 2 == 0)
+        j = i;
+      else
+        j = NUM_ENEMIES - i - 1;
 
-    for (i = 0; i < NUM_EXPLOSIONS; ++i)
-    {
-      if (explosion_y[i] < 255)
+      if (enemy_y[j] < 255)
       {
-        spr = oam_meta_spr(explosion_x[i], explosion_y[i], spr, explosion_meta);
-        explosion_y[i] = 255;
+        spr = oam_meta_spr(enemy_x[j], enemy_y[j], spr, enemy_meta);
       }
     }
 
@@ -283,8 +279,18 @@ void main(void)
     {
       for (j = 0; j < NUM_BULLETS; ++j)
       {
+        if (by[i][j] < 255)
         // spr = oam_spr(b1x[i], b1y[i], 0x40, 2 | ((frame % 4 > 2) ? (1 << 6) : 0), spr);
-        spr = oam_spr(bx[i][j], by[i][j], 0x40, 2, spr);
+          spr = oam_spr(bx[i][j], by[i][j], 0x40, 2, spr);
+      }
+    }
+
+    for (i = 0; i < NUM_EXPLOSIONS; ++i)
+    {
+      if (explosion_y[i] < 255)
+      {
+        spr = oam_meta_spr(explosion_x[i], explosion_y[i], spr, explosion_meta);
+        explosion_y[i] = 255;
       }
     }
 
