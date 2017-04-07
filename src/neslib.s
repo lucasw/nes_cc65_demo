@@ -11,7 +11,7 @@
 	.export _bank_spr,_bank_bg
 	.export _vram_read,_vram_write
 	.export _music_play,_music_stop,_music_pause
-	.export _sfx_play
+	.export _sfx_play,_sample_play
 	.export _pad_poll,_pad_trigger,_pad_state
 	.export _rand8,_rand16,_set_rand
 	.export _set_vram_update,_vram_adr,_vram_put,_vram_fill,_vram_inc
@@ -628,13 +628,14 @@ _vram_write:
 
 
 
-;void __fastcall__ music_play(const unsigned char *data);
+;void __fastcall__ music_play(unsigned char song);
 
-_music_play:
-	stx <PTR
-	tax
-	ldy <PTR
-	jmp FamiToneMusicStart
+_music_play=FamiToneMusicPlay
+;_music_play:
+;	stx <PTR
+;	tax
+;	ldy <PTR
+;	jmp FamiToneMusicStart
 
 
 
@@ -658,11 +659,20 @@ _sfx_play:
 	lda @sfxPriority,x
 	tax
 	jsr popa
-	jmp FamiToneSfxStart
+;	jmp FamiToneSfxStart
+	jmp FamiToneSfxPlay
 
 @sfxPriority:
 	.byte FT_SFX_CH0,FT_SFX_CH1,FT_SFX_CH2,FT_SFX_CH3
 
+;void __fastcall__ sample_play(unsigned char sample);
+
+.if(FT_DPCM_ENABLE)
+_sample_play=FamiToneSamplePlay
+.else
+_sample_play:
+  rts
+.endif
 
 
 ;unsigned char __fastcall__ pad_poll(unsigned char pad);
@@ -975,4 +985,5 @@ palBrightTable:
 
 
 
-	.include "famitone.s"
+;	.include "famitone.s"
+	.include "famitone2.s"

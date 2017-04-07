@@ -7,8 +7,9 @@ NES_PRG_BANKS			=1	;number of 16K PRG banks, change to 2 for NROM256
 NES_CHR_BANKS			=1	;number of 8K CHR banks
 NES_MIRRORING			=0	;0 horizontal, 1 vertical, 8 four screen
 
-FT_DPCM_OFF				=$ffc0	;samples offset, $c000 or higher, 64-byte steps
-FT_SFX_STREAMS			=4	;number of sound effects played at once, can be 4 or less (faster)
+;FT_DPCM_OFF				=$ffc0	;samples offset, $c000 or higher, 64-byte steps
+FT_DPCM_OFF                            = $c000         ;$c000..$ffc0, 64-byte steps
+FT_SFX_STREAMS                 = 4                     ;number of sound effects played at once, 1..4
 
 .define FT_DPCM_ENABLE 	0	;zero to exclude all the DMC code
 .define FT_SFX_ENABLE  	1	;zero to exclude all the sound effects code
@@ -83,11 +84,11 @@ RLE_BYTE	=TEMP+3
 
 
 FT_BASE_ADR		=$0100	;page in RAM, should be $xx00
-FT_DPCM_PTR		=(FT_DPCM_OFF&$3fff)>>6
+;FT_DPCM_PTR		=(FT_DPCM_OFF&$3fff)>>6
 
 .define FT_THREAD      1;undefine if you call sound effects in the same thread as sound update
-
-
+.define FT_PAL_SUPPORT  1   ;undefine to exclude PAL support
+.define FT_NTSC_SUPPORT 1   ;undefine to exclude NTSC support
 
 .segment "HEADER"
 
@@ -204,6 +205,8 @@ detectNTSC:
 
 	jsr _ppu_off
 
+  ldx #<music_data
+  ldy #>music_data
 	lda <NTSCMODE
 	jsr FamiToneInit
 
@@ -238,6 +241,7 @@ detectNTSC:
 
 .segment "RODATA"
 
+music_data:
 	.include "music.s"
 
 	.if(FT_SFX_ENABLE)

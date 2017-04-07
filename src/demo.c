@@ -251,6 +251,7 @@ void main(void)
   frame = 0;
 
   // now the main loop
+  music_play(0);
 
   while (1)
   {
@@ -332,6 +333,8 @@ void main(void)
         by[i][b_ind[i]] = player_y[i];
         ++b_ind[i];
         b_ind[i] %= NUM_BULLETS;
+
+        sfx_play(1, 1);
       }
 
       // poll pad and change coordinates
@@ -353,6 +356,7 @@ void main(void)
         IN_BOUNDS(player_y[0] + 8, player_y[1] + 8, 18))
     {
       touch = 1;
+      sfx_play(0, 0);
     }
     else
     {
@@ -385,6 +389,7 @@ void main(void)
 
       for (j = 0; j < 2; ++j)
       {
+        // enemy collision with player
         if (IN_BOUNDS(enemy_x[i] + 8, player_x[j] + 12, 16) &&
             IN_BOUNDS(enemy_y[i] + 4, player_y[j] + 8, 10))
         {
@@ -392,6 +397,7 @@ void main(void)
           explosion_y[0] = player_y[j];
           enemy_y[i] = 255;
           player_y[j] = 255;
+          sfx_play(3, 3);
         }
       }
     }  // loop through enemies
@@ -411,6 +417,7 @@ void main(void)
           if (enemy_y[k] > 250)
             continue;
 
+          // player bullet hits enemy
           // TODO(lucasw) handle overflow when +4, or +8 > 255
           if (IN_BOUNDS(bx[i][j] + 4, enemy_x[k] + 8, 8) &&
               IN_BOUNDS(by[i][j] + 4, enemy_y[k] + 4, 4))
@@ -419,6 +426,7 @@ void main(void)
             explosion_x[0] = enemy_x[k];
             explosion_y[0] = enemy_y[k] - 4;
             enemy_y[k] = 255;
+            sfx_play(2, 2);
           }
         }  // collision detection
       }

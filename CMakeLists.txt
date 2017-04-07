@@ -16,7 +16,13 @@ set(LD65 ${CC65_DIR}/bin/ld65)
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/crt0.o PRE_LINK
   COMMAND ${CA65} ${CMAKE_CURRENT_SOURCE_DIR}/src/crt0.s -o ${CMAKE_CURRENT_BINARY_DIR}/crt0.o
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/crt0.s ${CMAKE_CURRENT_SOURCE_DIR}/config/tileset.chr
+  DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/crt0.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/neslib.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/famitone2.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sounds.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/music.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/config/tileset.chr
   COMMENT "assemble crt0"
   )
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/demo.s PRE_LINK
